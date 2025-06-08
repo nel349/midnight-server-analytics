@@ -12,4 +12,7 @@ GET http://localhost:3001/api/blocks/recent?n=5
 
 ### Get blocks in a time range (heatmap, timeline, analytics)
 # Replace with actual unix timestamps for your test
-GET http://localhost:3001/api/blocks/range?startTime=1717000000&endTime=1718000000 
+GET http://localhost:3001/api/blocks/range?startTime=1717000000&endTime=1718000000
+
+### Get blocks in a time range (should match recent blocks in debug logs)
+GET http://localhost:3001/api/blocks/range?startTime=1749403896001&endTime=1749403998001 

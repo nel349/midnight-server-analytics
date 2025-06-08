@@ -57,9 +57,8 @@ export async function fetchBlockByHeight(height: number) {
   return response.data.data.block;
 }
 
-// Fetch the last N blocks (for timeline visualizer, heatmap, and analytics)
+// Fetch the last N blocks (for timeline visualizer, heatmap, analytics)
 export async function fetchLastNBlocks(n: number) {
-  // First get the latest block to know the current height
   const latest = await fetchLatestBlock();
   const latestHeight = latest.height;
   const blockPromises = [];
@@ -72,29 +71,26 @@ export async function fetchLastNBlocks(n: number) {
   return Promise.all(blockPromises);
 }
 
-// Fetch blocks in a time range (for heatmap, timeline, and analytics)
-export async function fetchBlocksByTimeRange(startTime: number, endTime: number) {
-  const query = `
-    query GetBlocksByTimeRange($startTime: Int!, $endTime: Int!) {
-      blocks(where: { timestamp: { gte: $startTime, lte: $endTime } }) {
-        hash
-        height
-        timestamp
-        transactions {
-          hash
-          identifiers
-        }
-      }
+// Fetch blocks in a time range (for heatmap, timeline, analytics)
+// Since the schema does not support a blocks query, we walk backwards by height and filter by timestamp
+export async function fetchBlocksByTimeRange(startTime: number, endTime: number, maxBlocks: number = 100) {
+  const latest = await fetchLatestBlock();
+  console.log(`[DEBUG] Latest block height: ${latest.height}, timestamp: ${latest.timestamp}`);
+  console.log(`[DEBUG] Requested time range: startTime=${startTime}, endTime=${endTime}`);
+  const blocks = [];
+  let height = latest.height;
+  let count = 0;
+  while (height >= 0 && count < maxBlocks) {
+    const block = await fetchBlockByHeight(height);
+    if (!block) break;
+    console.log(`[DEBUG] Fetched block height: ${block.height}, timestamp: ${block.timestamp}`);
+    if (block.timestamp < startTime) break;
+    if (block.timestamp <= endTime && block.timestamp >= startTime) {
+      blocks.push(block);
     }
-  `;
-  const response = await axios.post(GRAPHQL_ENDPOINT, {
-    query,
-    variables: { startTime, endTime }
-  }, {
-    headers: { 'Content-Type': 'application/json' }
-  });
-  if (response.data.errors) {
-    throw new Error(JSON.stringify(response.data.errors));
+    height--;
+    count++;
   }
-  return response.data.data.blocks;
+  console.log(`[DEBUG] Returning ${blocks.length} blocks in range.`);
+  return blocks;
 } 
