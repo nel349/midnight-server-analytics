@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import { fetchLatestBlock, fetchBlockByHeight, fetchLastNBlocks, fetchBlocksByTimeRange } from './services';
+import { networkInterfaces } from 'os';
 
 const fastify = Fastify({
   logger: true,
@@ -68,10 +69,24 @@ fastify.get('/api/blocks/range', async (request, reply) => {
   }
 });
 
+// Get local IP address
+const getLocalIpAddress = () => {
+  const interfaces = networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+};
+
 const start = async () => {
   try {
     await fastify.listen({ port: 3001, host: '0.0.0.0' });
     console.log('🚀 Server running at http://localhost:3001');
+    console.log(`🚀 Server running at http://${getLocalIpAddress()}:3001`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
