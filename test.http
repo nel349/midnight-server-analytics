@@ -2,4 +2,14 @@
 GET http://localhost:3001/health
 
 ### Get latest block
-GET http://localhost:3001/api/latest-block 
+GET http://localhost:3001/api/latest-block
+
+### Get block by height (block explorer, timeline, analytics)
+GET http://localhost:3001/api/block/100
+
+### Get recent N blocks (timeline visualizer, heatmap, analytics)
+GET http://localhost:3001/api/blocks/recent?n=5
+
+### Get blocks in a time range (heatmap, timeline, analytics)
+# Replace with actual unix timestamps for your test
+GET http://localhost:3001/api/blocks/range?startTime=1717000000&endTime=1718000000 
