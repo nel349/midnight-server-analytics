@@ -1,0 +1,5 @@
+### Health check
+GET http://localhost:3001/health
+
+### Get latest block
+GET http://localhost:3001/api/latest-block 

@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import { fetchLatestBlock } from './services';
 
 const fastify = Fastify({
   logger: true,
@@ -7,6 +8,17 @@ const fastify = Fastify({
 // Health check route
 fastify.get('/health', async (request, reply) => {
   return { status: 'ok' };
+});
+
+// Latest block endpoint
+fastify.get('/api/latest-block', async (request, reply) => {
+  try {
+    const block = await fetchLatestBlock();
+    return { block };
+  } catch (error) {
+    fastify.log.error(error);
+    reply.status(500).send({ error: 'Failed to fetch latest block' });
+  }
 });
 
 const start = async () => {
