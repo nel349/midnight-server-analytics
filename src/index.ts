@@ -1,5 +1,5 @@
 import Fastify from 'fastify';
-import { fetchLatestBlock, fetchBlockByHeight, fetchLastNBlocks, fetchBlocksByTimeRange } from './services';
+import { fetchLatestBlock, fetchBlockByHeight, fetchLastNBlocks, fetchBlocksByTimeRange, fetchBlockByHash } from './services';
 import { networkInterfaces } from 'os';
 
 const fastify = Fastify({
@@ -22,18 +22,30 @@ fastify.get('/api/latest-block', async (request, reply) => {
   }
 });
 
-// Block by height (for block explorer, timeline, analytics)
-fastify.get('/api/block/:height', async (request, reply) => {
+// Block by height or hash
+fastify.get('/api/block/:identifier', async (request, reply) => {
   try {
-    const height = parseInt((request.params as any).height, 10);
-    if (isNaN(height)) {
-      return reply.status(400).send({ error: 'Invalid block height' });
+    const identifier = (request.params as any).identifier;
+    let block;
+
+    if (!isNaN(Number(identifier))) {
+      // Assume it's a height if it's a number
+      const height = parseInt(identifier, 10);
+      block = await fetchBlockByHeight(height);
+    } else {
+      // Assume it's a hash if not a number
+      const hash = identifier;
+      block = await fetchBlockByHash(hash);
     }
-    const block = await fetchBlockByHeight(height);
+    
+    if (!block) {
+      return reply.status(404).send({ error: 'Block not found' });
+    }
+
     return { block };
   } catch (error) {
     fastify.log.error(error);
-    reply.status(500).send({ error: 'Failed to fetch block by height' });
+    reply.status(500).send({ error: 'Failed to fetch block' });
   }
 });
 

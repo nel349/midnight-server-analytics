@@ -86,6 +86,62 @@ export async function fetchBlockByHeight(height: number) {
   return response.data.data.block;
 }
 
+// Fetch a block by hash
+export async function fetchBlockByHash(hash: string) {
+  const query = `
+    query GetBlockByHash($hash: String!) {
+      block(offset: { hash: $hash }) {
+        hash
+        height
+        protocolVersion
+        timestamp
+        author
+        parent {
+          hash
+          height
+        }
+        transactions {
+          hash
+          identifiers
+          applyStage
+          raw
+          merkleTreeRoot
+          contractActions {
+            __typename
+            ... on ContractDeploy {
+              address
+              state
+              chainState
+            }
+            ... on ContractCall {
+              address
+              state
+              chainState
+              entryPoint
+              deploy { address }
+            }
+            ... on ContractUpdate {
+              address
+              state
+              chainState
+            }
+          }
+        }
+      }
+    }
+  `;
+  const response = await axios.post(GRAPHQL_ENDPOINT, {
+    query,
+    variables: { hash }
+  }, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (response.data.errors) {
+    throw new Error(JSON.stringify(response.data.errors));
+  }
+  return response.data.data.block;
+}
+
 // Fetch the last N blocks (for timeline visualizer, heatmap, analytics)
 export async function fetchLastNBlocks(n: number) {
   const latest = await fetchLatestBlock();

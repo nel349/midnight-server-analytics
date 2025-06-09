@@ -10,6 +10,12 @@ GET http://localhost:3001/api/block/100
 ### Get recent N blocks (timeline visualizer, heatmap, analytics)
 GET http://localhost:3001/api/blocks/recent?n=5
 
+### Get block by hash
+GET http://localhost:3001/api/block/507cd73ae005050a74006a0837dc9dcec92dbd08257a645abecc49a89e1963f8
+
+### Get block by height
+GET http://localhost:3001/api/block/1
+
 ### Get blocks in a time range (heatmap, timeline, analytics)
 # Replace with actual unix timestamps for your test
 GET http://localhost:3001/api/blocks/range?startTime=1717000000&endTime=1718000000
