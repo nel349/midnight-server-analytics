@@ -37,10 +37,39 @@ export async function fetchBlockByHeight(height: number) {
       block(offset: { height: $height }) {
         hash
         height
+        protocolVersion
         timestamp
+        author
+        parent {
+          hash
+          height
+        }
         transactions {
           hash
           identifiers
+          applyStage
+          raw
+          merkleTreeRoot
+          contractActions {
+            __typename
+            ... on ContractDeploy {
+              address
+              state
+              chainState
+            }
+            ... on ContractCall {
+              address
+              state
+              chainState
+              entryPoint
+              deploy { address }
+            }
+            ... on ContractUpdate {
+              address
+              state
+              chainState
+            }
+          }
         }
       }
     }
