@@ -1,11 +1,10 @@
 import axios from 'axios';
-import { insertBlock, getLatestBlockFromDb, getBlockByHeightFromDb, getBlockByHashFromDb, getBlocksByTimeRangeFromDb } from './database';
-import { Block, Transaction } from './types';
+import { getBlockByHeightFromDb, getBlockByHashFromDb, getBlocksByTimeRangeFromDb } from './database';
+import { Block } from './types';
 
 const GRAPHQL_ENDPOINT = 'https://indexer.testnet-02.midnight.network/api/v1/graphql';
 
 export async function fetchLatestBlock(): Promise<Block> {
-
   const query = `
     query GetLatestBlock {
       block {
@@ -30,7 +29,6 @@ export async function fetchLatestBlock(): Promise<Block> {
     throw new Error(JSON.stringify(response.data.errors));
   }
   const block: Block = response.data.data.block;
-  // await insertBlock(block); // Store in DB
   return block;
 }
 
@@ -95,9 +93,6 @@ export async function fetchBlockByHeight(height: number): Promise<Block | null> 
     throw new Error(JSON.stringify(response.data.errors));
   }
   const block: Block = response.data.data.block;
-  if (block) {
-    await insertBlock(block); // Store in DB
-  }
   return block;
 }
 
@@ -161,9 +156,6 @@ export async function fetchBlockByHash(hash: string): Promise<Block | null> {
     throw new Error(JSON.stringify(response.data.errors));
   }
   const block: Block = response.data.data.block;
-  if (block) {
-    await insertBlock(block); // Store in DB
-  }
   return block;
 }
 
