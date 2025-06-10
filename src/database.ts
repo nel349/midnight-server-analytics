@@ -67,6 +67,7 @@ export async function insertBlock(block: Block) {
   ];
   try {
     await client.query(query, values);
+    console.log(`[DEBUG] Inserted block ${block.height} into DB.`);
   } catch (error) {
     console.error('Error inserting block:', block.height, error);
   }

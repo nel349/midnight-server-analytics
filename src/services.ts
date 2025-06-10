@@ -5,11 +5,6 @@ import { Block, Transaction } from './types';
 const GRAPHQL_ENDPOINT = 'https://indexer.testnet-02.midnight.network/api/v1/graphql';
 
 export async function fetchLatestBlock(): Promise<Block> {
-  // Try to get from DB first
-  const latestFromDb = await getLatestBlockFromDb();
-  if (latestFromDb) {
-    return latestFromDb;
-  }
 
   const query = `
     query GetLatestBlock {
@@ -35,7 +30,7 @@ export async function fetchLatestBlock(): Promise<Block> {
     throw new Error(JSON.stringify(response.data.errors));
   }
   const block: Block = response.data.data.block;
-  await insertBlock(block); // Store in DB
+  // await insertBlock(block); // Store in DB
   return block;
 }
 
