@@ -2,7 +2,7 @@ import { fetchLatestBlock, fetchBlockByHeight } from './services';
 import { initDb, insertBlock, getLatestBlockFromDb } from './database';
 import { Block } from './types';
 
-const POLLING_INTERVAL_MS = 5000; // Poll for new blocks every 5 seconds
+const POLLING_INTERVAL_MS = 30 * 60 * 1000; // Poll for new blocks every 30 minutes
 const BACKFILL_BATCH_SIZE = 100; // How many blocks to backfill at once
 
 async function indexBlock(height: number) {
@@ -22,7 +22,7 @@ async function backfillHistoricalBlocks() {
   const latestIndexedBlock = await getLatestBlockFromDb();
   const latestNetworkBlock = await fetchLatestBlock();
 
-  let startHeight = latestIndexedBlock ? latestIndexedBlock.height + 1 : 0; // Start from 0 if no blocks are indexed
+  let startHeight = latestIndexedBlock ? latestIndexedBlock.height - 20: 0; // Start from 0 if no blocks are indexed
   let endHeight = latestNetworkBlock.height;
 
   console.log(`Backfill range: ${startHeight} to ${endHeight}`);
